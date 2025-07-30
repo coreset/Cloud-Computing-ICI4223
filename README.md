@@ -34,7 +34,7 @@ d1c4c6e66979
 1. Go to [https://www.digitalocean.com](https://www.digitalocean.com)
 2. Click **"Sign Up"**
 3. Fill in your **email and password** or sign up with GitHub/Google.
-4. On the billing page, enter the promo code:
+4. Navigate to the billing page by proceeding through the Droplet creation process:
 
    ```
    d1c4c6e66979
@@ -58,57 +58,46 @@ d1c4c6e66979
 1. After login, go to the **DigitalOcean Dashboard**.
 2. Click **"Create" → "Droplets"**
 
-   ![Create Droplet](./images/create-droplet.png)
+   ![Create Droplet](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-5.png)
 
 3. Choose the following options:
-   - **Image:** Ubuntu 22.04 (LTS)
-   - **Plan:** Basic
-   - **CPU Options:** Regular (Shared CPU)
-   - **Choose a plan:** $4/month is enough (credits will cover this)
    - **Data Center Region:** Choose nearest (e.g., Bangalore, Singapore)
+    ![Data Center Region Options](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-7.png)
+   - **Image:** Ubuntu 22.04 (LTS)
+   - **Plan:** Regular **CPU Options:**  (credits will cover this)
+   ![Data Center Region Options](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-7.png)
+
    - **Authentication:**
      - Select **"Password"**
      - Set a **strong root password** and remember it
+   ![Data Center Region Options](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-9.png)
+  - **Add student id as Hostname**
+   ![Change Hostname](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-10.png)
+  
+5. Click **"Create Droplet"**
+6. Wait until it says **"Your droplet is ready"**
 
-   ![Droplet Configuration](./images/droplet-config.png)
-
-4. Click **"Create Droplet"**
-5. Wait until it says **"Your droplet is ready"**
-
-   ![Droplet Ready](./images/droplet-ready.png)
+   ![Droplet Ready]((https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-11.png)
 
 ---
 
 ### **Step 3: Connect to Your Droplet via SSH**
-💻 Open **Terminal** (Mac/Linux) or **Command Prompt** (Windows with OpenSSH installed):
+💻 Open **Terminal** (Mac/Linux) or **git bash** (Windows):
 
 ```sh
-ssh root@your_droplet_ip
+$ ssh root@your_droplet_ip
+# If the above SSH command does not work due to VPS SSH configuration issues, try the following alternative command
+$ ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no root@your_droplet_ip
 ```
 
 - Replace `your_droplet_ip` with the actual IP address shown in your droplet dashboard.
+  ![Droplet IP](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-12.png)
 - Enter the **root password** you set earlier.
 - If asked to confirm connection, type:
   ```sh
   yes
   ```
 
-✅ You are now connected to your VPS!
-
----
-
-## **🔐 Optional: Secure Your Droplet**
-For production or future use, consider:
-- Adding a new user (not using `root`)
-- Setting up SSH key-based authentication
-- Installing a firewall:
-
-```sh
-ufw allow OpenSSH
-ufw enable
-```
-
----
 
 ## **💡 Troubleshooting Tips**
 
