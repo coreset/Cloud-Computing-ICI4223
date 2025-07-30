@@ -33,20 +33,24 @@ d1c4c6e66979
 ### **Step 1: Create a DigitalOcean Account**
 1. Go to [https://www.digitalocean.com](https://www.digitalocean.com)
 2. Click **"Sign Up"**
-
-   ![Sign Up Page](./images/sign-up-page.png)
-
 3. Fill in your **email and password** or sign up with GitHub/Google.
 4. On the billing page, enter the promo code:
 
    ```
-   xxxxxx
+   d1c4c6e66979
    ```
+   ![Create Droplet](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-0.png)
 
-   ![Promo Code Entry](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/Screenshot%20from%20Screencast%20From%202025-07-30%2023-36-20.mp4%20-%201.png)
+   ![Go to Add Payment Method](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-1.png)
 
-5. Add your payment method (card or PayPal).
-6. Click **"Submit"** to complete the signup.
+5. Add Promo Code to under Promos section.
+   ![Add Promos](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-2.png)
+6. Add your payment method (card or PayPal).
+   ![Add bank card](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-4.png)
+7. Check success response for PromoCode.
+   ![Get success toast message](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-3.png)
+   ![Get your credit offer](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-5.png)
+
 
 ---
 
