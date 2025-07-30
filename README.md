@@ -43,7 +43,7 @@ d1c4c6e66979
    xxxxxx
    ```
 
-   ![Promo Code Entry]([./Practical-Session-02-setup-digital-ocean-vps/Screenshot%20from%20Screencast%20From%202025-07-30%2023-36-20.mp4%20-%201.png](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/Screenshot%20from%20Screencast%20From%202025-07-30%2023-36-20.mp4%20-%201.png))
+   ![Promo Code Entry](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/Screenshot%20from%20Screencast%20From%202025-07-30%2023-36-20.mp4%20-%201.png)
 
 5. Add your payment method (card or PayPal).
 6. Click **"Submit"** to complete the signup.
