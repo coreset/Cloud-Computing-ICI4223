@@ -1,118 +1,229 @@
-# **Practical Session: Create a DigitalOcean VPS (Droplet)**
+# **Practical Session: Execute Basic Linux Commands on Ubuntu Server**
 
 ### **🎯 Objective**
 By the end of this session, you will be able to:  
-✅ Create a DigitalOcean account using a promo code.  
-✅ Launch a Virtual Private Server (droplet).  
-✅ Connect to your server using SSH.
+✅ Connect to a cloud server (Ubuntu VPS)  
+✅ Use essential Linux commands for directory, file, and permission management  
+✅ Submit your work by creating a confirmation file on the server  
+
+
+This section lists essential Linux commands you should become familiar with as part of your cloud computing practicals. These commands help with navigating the file system, editing files, managing permissions, monitoring logs, and understanding system directories.
 
 ---
 
-## **🔧 Prerequisites**
-Before starting, make sure you have:
+## 📁 File and Directory Navigation
 
-### **1. A Valid Email Address**
-Required to sign up for DigitalOcean.
-
-### **2. A Payment Method (Credit/Debit Card)**
-DigitalOcean requires this to activate the free credit.
-
----
-
-## **🎁 Promo Code**
-Use this promo code during signup to receive **$200 free credits (valid for 60 days):**
-
-```
-d1c4c6e66979
-```
-
----
-
-## **🚀 Step-by-Step Guide**
-
-### **Step 1: Create a DigitalOcean Account**
-1. Go to [https://www.digitalocean.com](https://www.digitalocean.com)
-2. Click **"Sign Up"**
-3. Fill in your **email and password** or sign up with GitHub/Google.
-4. Navigate to the billing page by proceeding through the Droplet creation process:
-
-   ```
-   d1c4c6e66979
-   ```
-   ![Create Droplet](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-0.png)
-
-   ![Go to Add Payment Method](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-1.png)
-
-5. Add Promo Code to under Promos section.
-   ![Add Promos](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-2.png)
-6. Add your payment method (card or PayPal).
-   ![Add bank card](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-4.png)
-7. Check success response for PromoCode.
-   ![Get success toast message](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-3.png)
-   ![Get your credit offer](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-5.png)
-
+| Command | Description |
+|--------|-------------|
+| `ls` | List directory contents |
+| `ls -al` | List all files (including hidden) with details |
+| `cd` | Change directory |
+| `pwd` | Print working directory |
+| `mkdir dirname` | Create a new directory |
+| `rmdir dirname` | Remove an empty directory |
+| `touch filename` | Create an empty file |
+| `cp src dest` | Copy files/directories |
+| `mv src dest` | Move or rename files/directories |
+| `rm filename` | Remove a file |
+| `rm -r dirname` | Remove a directory recursively |
+| `find . -name "*.log"` | Find all `.log` files in current directory and subdirectories |
 
 ---
 
-### **Step 2: Create a Droplet (VPS)**
-1. After login, go to the **DigitalOcean Dashboard**.
-2. Click **"Create" → "Droplets"**
+## 🔐 File Permissions & Ownership
 
-   ![Create Droplet](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-5.png)
-
-3. Choose the following options:
-   - **Data Center Region:** Choose nearest (e.g., Bangalore, Singapore)
-    ![Data Center Region Options](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-7.png)
-   - **Image:** Ubuntu 22.04 (LTS)
-   - **Plan:** Regular **CPU Options:**  (credits will cover this)
-   ![Data Center Region Options](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-7.png)
-
-   - **Authentication:**
-     - Select **"Password"**
-     - Set a **strong root password** and remember it
-   ![Data Center Region Options](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-9.png)
-  - **Add student id as Hostname**
-   ![Change Hostname](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-10.png)
-  
-5. Click **"Create Droplet"**
-6. Wait until it says **"Your droplet is ready"**
-
-   ![Droplet Ready]((https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-11.png)
+| Command | Description |
+|--------|-------------|
+| `chmod 755 file` | Set permissions (rwxr-xr-x) |
+| `chmod +x script.sh` | Make script executable |
+| `chown user file` | Change ownership of file |
+| `chown user:group file` | Change owner and group |
+| `ls -l` | View file permissions and ownership |
+| `umask` | Show default permission mask |
+| `stat filename` | Show detailed info about a file |
 
 ---
 
-### **Step 3: Connect to Your Droplet via SSH**
-💻 Open **Terminal** (Mac/Linux) or **git bash** (Windows):
+## 📂 Important Directories in Ubuntu
 
+| Directory | Purpose |
+|----------|---------|
+| `/home` | User home directories |
+| `/etc` | System-wide configuration files |
+| `/var/log` | Log files |
+| `/tmp` | Temporary files |
+| `/usr` | User programs, libraries |
+| `/bin` | Essential binaries |
+| `/sbin` | System binaries (for root/admin) |
+| `/dev` | Device files |
+| `/proc` | Kernel and process info (virtual FS) |
+| `/boot` | Boot loader files |
+| `/lib` | Shared libraries |
+| `/mnt` | Temporary mounted filesystems |
+| `/opt` | Optional software packages |
+
+---
+
+## 📝 File Viewing and Editing
+
+| Command | Description |
+|--------|-------------|
+| `cat file` | View file contents |
+| `less file` | Scroll through large files |
+| `more file` | View file page-by-page |
+| `head -n 20 file` | Show first 20 lines |
+| `tail -n 20 file` | Show last 20 lines |
+| `nano file` | Edit file using Nano editor |
+| `vim file` | Edit file using Vim editor |
+| `echo "text" > file` | Write text to file (overwrite) |
+| `echo "text" >> file` | Append text to file |
+
+---
+
+## 📈 Monitoring Logs and Processes
+
+| Command | Description |
+|--------|-------------|
+| `tail -f /var/log/syslog` | View live system log |
+| `tail -f /var/log/nginx/access.log` | View live access logs (example) |
+| `dmesg` | View kernel messages |
+| `top` | Real-time system usage |
+| `htop` | Enhanced top (if installed) |
+| `ps aux` | List all running processes |
+| `kill PID` | Kill a process by PID |
+| `df -h` | View disk usage |
+| `du -sh folder` | Check folder size |
+
+---
+
+## 📦 Package and System Updates
+
+| Command | Description |
+|--------|-------------|
+| `sudo apt update` | Update package lists |
+| `sudo apt upgrade` | Upgrade all packages |
+| `sudo apt install package` | Install new package |
+| `sudo apt remove package` | Remove a package |
+| `sudo reboot` | Restart the server |
+| `sudo shutdown now` | Shut down the server immediately |
+
+---
+
+## **🚀 Instructions**
+
+Follow each step in sequence and make sure each command executes without error. At the end, you will generate a confirmation file and submit it as proof of completion.
+
+---
+
+📸 Take a screenshot of each step you perform in the terminal, including the displayed file content.
+Save all screenshots in a single PDF file and submit it to samadhivkcom@gmail.com.
+
+### **Step 1: Connect to the VPS**
+1. Connect to your Ubuntu server using SSH:
 ```sh
-$ ssh root@your_droplet_ip
-# If the above SSH command does not work due to VPS SSH configuration issues, try the following alternative command
-$ ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no root@your_droplet_ip
+ssh root@your_server_ip
 ```
-
-- Replace `your_droplet_ip` with the actual IP address shown in your droplet dashboard.
-  ![Droplet IP](https://github.com/coreset/Cloud-Computing-ICI4223/blob/Practical-Session-02-setup-digital-ocean-vps/images/image-12.png)
-- Enter the **root password** you set earlier.
-- If asked to confirm connection, type:
-  ```sh
-  yes
-  ```
-
-
-## **💡 Troubleshooting Tips**
-
-❌ **SSH not connecting?**  
-→ Make sure your IP address is correct and droplet is active.  
-→ Try:
-```sh
-ping your_droplet_ip
-```
-
-❌ **Permission denied error?**  
-→ Double-check the root password and IP address.
-
-❌ **Promo code not working?**  
-→ Ensure you're using a **new account** and entering the code correctly.  
-→ Contact [DigitalOcean Support](https://www.digitalocean.com/support) if needed.
 
 ---
+
+### **Step 2: Setup Working Directory**
+2. Create a directory named `linux-practical` in your home folder:
+```sh
+mkdir ~/linux-practical
+```
+
+3. Navigate into this directory:
+```sh
+cd ~/linux-practical
+```
+
+---
+
+### **Step 3: Create and Manage Files**
+4. Create three empty files:
+```sh
+touch file1.txt file2.txt file3.txt
+```
+
+5. Append some text to each file:
+```sh
+echo "This is file1" > file1.txt
+echo "This is file2" > file2.txt
+echo "This is file3" > file3.txt
+```
+
+---
+
+### **Step 4: Permission Handling**
+6. Change the permissions of `file1.txt` to be readable and writable by owner only:
+```sh
+chmod 600 file1.txt
+```
+
+7. Make `file2.txt` executable by all users:
+```sh
+chmod a+x file2.txt
+```
+
+---
+
+### **Step 5: File Content & Viewing**
+8. View the contents of `file3.txt` using `cat`:
+```sh
+cat file3.txt
+```
+
+9. View a detailed list of all files and permissions in the current directory:
+```sh
+ls -al
+```
+
+---
+
+### **Step 6: System Monitoring**
+10. View system memory and usage with:
+```sh
+top
+```
+> Press `q` to exit `top`.
+
+11. Check your current disk space:
+```sh
+df -h
+```
+
+---
+
+### **Step 7: Logs & Processes**
+12. View the last 5 lines of the system log:
+```sh
+tail -n 5 /var/log/syslog
+```
+
+13. Show all currently running processes:
+```sh
+ps aux
+```
+
+---
+
+### **Step 8: Submit Proof of Work**
+14. Create a final file as submission proof:
+```sh
+echo "Student [Your Name] completed the Linux practical on $(date)" > ~/linux-practical/submission.txt
+```
+
+15. Show that your file was created with this command:
+```sh
+cat ~/linux-practical/submission.txt
+```
+
+---
+
+## ✅ You’re Done!
+You’ve successfully executed and demonstrated basic Linux skills on a remote Ubuntu server. Well done!
+
+---
+
+
+
