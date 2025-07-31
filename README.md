@@ -1,3 +1,8 @@
+```bash 
+$ ssh  -o PreferredAuthentications=password -o PubkeyAuthentication=no  IT230001@188.166.247.97
+```
+
+
 # **Practical Session: Execute Basic Linux Commands on Ubuntu Server**
 
 ### **🎯 Objective**
