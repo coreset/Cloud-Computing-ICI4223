@@ -24,6 +24,7 @@ Use this promo code during signup to receive **$200 free credits (valid for 60 d
 
 ```
 d1c4c6e66979
+542762bef7e4
 ```
 
 ---
