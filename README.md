@@ -1,292 +1,276 @@
-# Lab Sheet — Deploying an Application on a DigitalOcean Droplet (with Verification)
-**Version:** 2025-08-14  
-**Goal:** Provision a secure Linux VM (Droplet), harden access, and prepare it for application deployment — in a platform-agnostic way (not tied to any specific framework).
+# Lab Sheet — Deploying an Application on a DigitalOcean Droplet with Docker (React Example)
+
+**Version:** 2025-09-18  
+**Goal:** Deploy a React application inside Docker on a DigitalOcean Droplet, verify the container’s file system, and manage it with Docker Compose.
 
 ---
 
 ## Submission Requirements (What to Hand In)
 - **Screenshots** listed under each step (exactly as requested).
 - **Reflection (2–3 lines per step):** Describe **what** you did, **why** it’s necessary, and the **benefit**.
-- Submit as a single PDF or a zipped folder of images + a Markdown/Doc file with your reflections.
+- Submit as a single **PDF** or a **zipped** folder of images + a **Markdown/Doc** file with your reflections.
 
-> Replace all placeholders like `<ip_address_of_your_droplet>`, `<your_email@example.com>`, and `<your_ip_address>` with real values.
-
----
-
-## 1) Create a New Droplet (Can skip if you are already done)
-Provision a new Linux VM (e.g., Ubuntu 22.04 LTS) on DigitalOcean. Note its **public IP**.
-
-### Commands/Actions
-- Create droplet in DigitalOcean control panel
-- Record: IP, region, image, and size
-
-### Screenshot to Capture
-- **DigitalOcean Droplet details page** showing the droplet name, public IP, image, and region.
-
-### Reflection (2–3 lines)
-- What was done?  
-- Why this step is needed?  
-- Benefit to the deployment process?
+> Replace placeholders like `<droplet_ip>`, `<github_repo_url>`, and `<container-id>` with real values.
 
 ---
 
-## 2) Connect to the Droplet via SSH/Password (as root, first login)
+## Prerequisites (Read First)
+- You already have a working Droplet (e.g., **Ubuntu 22.04 LTS**) with a **non-root** sudo user and **SSH keys** set up.
+- **Docker Engine** and **Docker Compose v2** are installed (Steps A & B below show how).  
+- Your firewall (e.g., **UFW**) allows the chosen HTTP port (e.g., **80** or **8080**).
+
+### A) Install Docker Engine
 ```bash
-ssh root@<ip_address_of_your_droplet>
+# As a sudo-enabled user on Ubuntu 22.04+
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo $VERSION_CODENAME) stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Let your user run docker without sudo (log out/in to take effect)
+sudo usermod -aG docker $USER
 ```
 
-### Screenshot to Capture
-- Terminal session **after** you successfully log in as `root` (the welcome banner or prompt).
-
-### Reflection (2–3 lines)
-- What was done?  
-- Why SSH access is important?  
-- Benefit for remote administration?
-
----
-
-## 3) Update Software Packages
+### B) Verify Docker & Compose
 ```bash
-apt-get update && apt-get upgrade
+docker --version
+docker compose version
+docker run --rm hello-world
 ```
 
-### Screenshot to Capture
-- Terminal output **showing completed package updates** (the last few lines are sufficient).
+**Screenshot to Capture:**  
+- `docker --version` and `docker compose version` outputs.  
+- `hello-world` success message.
 
-### Reflection (2–3 lines)
-- What was done?  
-- Why updates matter?  
-- Benefit regarding security and stability?
+**Reflection (2–3 lines):**  
+- What did you install and verify?  
+- Why do we need Docker & Compose?  
+- Benefit for reproducible deployments?
 
 ---
 
-## 4) Set the Hostname
+## 1) Clone the Lab1 React Project to Your Droplet
+If you have a GitHub repo:
 ```bash
-hostnamectl set-hostname my-server
-hostname   # verify
+sudo apt-get update && sudo apt-get install -y git
+cd ~
+git clone <github_repo_url> lab1-react
+cd lab1-react
+ls -la
+```
+If you are uploading from local instead, you can `scp` the folder to the Droplet:
+```bash
+# On your local machine (example)
+scp -r ./lab1-react <user>@<droplet_ip>:~/
 ```
 
-### Screenshot to Capture
-- Output of `hostname` **showing the new hostname**.
+**Screenshot to Capture:**  
+- Terminal showing `git clone` (or `scp`) success and `ls -la` inside the project folder.
 
-### Reflection (2–3 lines)
-- What was done?  
-- Why set a hostname?  
-- Benefit for identification and management?
+**Reflection (2–3 lines):**  
+- What did you clone/copy?  
+- Why keep source in a dedicated directory?  
+- Benefit for organization and CI/CD?
 
 ---
 
-## 5) Update `/etc/hosts`
-```bash
-vi /etc/hosts
-# Add a line like:
-# <ip_address_of_your_droplet> my-server
+## 2) Create a `Dockerfile` at the Project Root
+Create a **multi-stage** Dockerfile to build React and serve with **Nginx**:
+```dockerfile
+# ---- Build stage ----
+FROM node:18-alpine AS builder
+WORKDIR /app
+# If you have a lockfile, copy it first for better caching
+COPY package*.json ./
+RUN npm ci --no-audit --no-fund
+COPY . .
+# Build production assets (uses Vite or CRA scripts depending on your project)
+# For Vite: npm run build
+# For CRA:  npm run build
+RUN npm run build
+
+# ---- Runtime stage ----
+FROM nginx:alpine
+# Copy build to Nginx html directory (adjust if your build directory differs)
+COPY --from=builder /app/dist /usr/share/nginx/html
+# If using CRA the build folder is /app/build instead of /app/dist
+# COPY --from=builder /app/build /usr/share/nginx/html
+EXPOSE 80
+# Minimal healthcheck (optional)
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD wget -qO- http://localhost/ || exit 1
 ```
 
-### Screenshot to Capture
-- A **`cat /etc/hosts`** output showing your new line mapping IP → hostname.
+> **Note:** If your React toolchain outputs to `build` instead of `dist`, switch the `COPY` path accordingly.
 
-### Reflection (2–3 lines)
-- What was done?  
-- Why map IP to hostname?  
-- Benefit for local name resolution and tooling?
+**Screenshot to Capture:**  
+- A terminal view (`cat Dockerfile`) showing your final Dockerfile contents.
+
+**Reflection (2–3 lines):**  
+- What does multi-stage build achieve?  
+- Why use Nginx for static files?  
+- Benefit for small, secure runtime images?
 
 ---
 
-## 6) Create a Non-Root User with Sudo
+## 3) Build the Image and Run the Container
 ```bash
-adduser newadmin
-adduser newadmin sudo
+# From the project root where Dockerfile exists
+docker build -t lab1-react:v1 .
 
+# Run the container (choose a port to expose)
+# Option A: map to port 80 (requires the port to be open and free)
+docker run -d --name lab1-web -p 80:80 lab1-react:v1
+
+# Option B: map to port 8080 (use this if 80 is busy or restricted)
+# docker run -d --name lab1-web -p 8080:80 lab1-react:v1
+
+# Verify it’s running
+docker ps
+# Test locally from the Droplet
+curl -I http://localhost        # or http://localhost:8080
+```
+
+**Screenshot to Capture:**  
+- `docker build` ending lines (success message).  
+- `docker ps` showing the `lab1-web` container and ports.  
+- `curl -I http://localhost` (or `:8080`) returning `200 OK`.
+
+**Reflection (2–3 lines):**  
+- What did build & run do?  
+- Why expose ports?  
+- Benefit for confirming app availability?
+
+---
+
+## 4) Inspect Files Inside the Running Container
+> Nginx images typically **don’t include `bash`**. Use `sh` if `bash` is missing.
+```bash
+# Find the container ID or name from `docker ps`
+docker exec -it <container-id-or-name> sh
+# Inside the container:
+ls -la /usr/share/nginx/html
 exit
-ssh newadmin@<ip_address_of_your_droplet>
 ```
 
-### Screenshot to Capture
-- Terminal **prompt** showing you’re logged in as `newadmin` (e.g., `newadmin@my-server:~$`)
-- Output of:
-```bash
-id
-groups
-```
-(You can run both as `newadmin` to show group membership including `sudo`.)
+**Screenshot to Capture:**  
+- The `ls -la /usr/share/nginx/html` output **inside** the container.
 
-### Reflection (2–3 lines)
-- What was done?  
-- Why avoid using root directly?  
-- Benefit for principle of least privilege and auditability?
+**Reflection (2–3 lines):**  
+- What did you verify inside the container?  
+- Why inspect filesystem content?  
+- Benefit for debugging image/runtime?
 
 ---
 
-## 7) Set Up SSH Key Authentication
-**On the remote server:**
-```bash
-mkdir -p ~/.ssh
+## 5) Create a `docker-compose.yaml` at Project Root
+This Compose file builds the image and runs the Nginx container. It also shows an optional **dev** service for live development (commented).
+```yaml
+# docker-compose.yaml
+services:
+  web:
+    build:
+      context: .
+    image: lab1-react:compose
+    container_name: lab1-web
+    ports:
+      - "80:80"         # change to "8080:80" if needed
+    restart: unless-stopped
+
+  # --- Optional: development service (uncomment if you want hot reload) ---
+  # dev:
+  #   image: node:18-alpine
+  #   working_dir: /app
+  #   volumes:
+  #     - ./:/app
+  #   command: sh -c "npm ci && npm run dev -- --host"
+  #   ports:
+  #     - "5173:5173"   # Vite default; adjust for CRA dev server
+  #   environment:
+  #     - NODE_ENV=development
+  #   # Useful if you need extra packages for native deps
+  #   # extra_hosts:
+  #   #   - "host.docker.internal:host-gateway"
 ```
 
-**On the local machine:**
-```bash
-ssh-keygen -b 4096 -t rsa -C "<your_email@example.com>"
-scp ~/.ssh/id_rsa.pub newadmin@<ip_address_of_your_droplet>:~/.ssh/authorized_keys
-```
+**Screenshot to Capture:**  
+- Terminal view (`cat docker-compose.yaml`) showing the file contents.
 
-**On the remote server:**
-```bash
-ls -la ~/.ssh
-chmod 700 ~/.ssh
-chmod 600 ~/.ssh/*
-```
-
-**Login test (passwordless):**
-```bash
-ssh newadmin@<ip_address_of_your_droplet>
-```
-
-### Screenshot to Capture
-- `ls -la ~/.ssh` output (showing `authorized_keys` present and permissions)
-- Successful passwordless login as `newadmin`
-
-> **Privacy tip:** If you open `authorized_keys`, truncate or blur most of the key for submission.
-
-### Reflection (2–3 lines)
-- What was done?  
-- Why use key-based auth?  
-- Benefit for security and convenience?
+**Reflection (2–3 lines):**  
+- What does Compose simplify?  
+- Why define services declaratively?  
+- Benefit for portability and team workflows?
 
 ---
 
-## 8) Harden SSH (Disable Root & Password Auth)
-Edit SSH config:
+## 6) Run Compose, Check Logs and Resource Usage
 ```bash
-sudo vi /etc/ssh/sshd_config
-# Set:
-# PermitRootLogin no
-# PasswordAuthentication no
+# Start in detached mode
+docker compose up -d
+
+# Verify containers
+docker compose ps
+
+# Follow logs
+docker compose logs -f
+
+# Open another terminal to check container resource usage
+docker stats
+
+# When done, stop and clean up (optional)
+# docker compose down
 ```
 
-Restart SSH:
-```bash
-sudo systemctl restart ssh
-```
+**Screenshot to Capture:**  
+- `docker compose ps` showing the running service(s).  
+- A snippet of `docker compose logs -f` output.  
+- `docker stats` for the running container(s).
 
-Validate effective config:
-```bash
-sudo sshd -T | grep -E 'permitrootlogin|passwordauthentication'
-sudo grep -r "PasswordAuthentication" /etc/ssh/sshd_config.d/
-```
-
-(Optional) Negative test from local:
-```bash
-ssh -o PreferredAuthentications=password root@<ip_address_of_your_droplet>
-# Expect failure if password auth and root login are disabled
-```
-
-### Screenshot to Capture
-- Output of `sshd -T | grep ...` showing `permitrootlogin no` and `passwordauthentication no`
-- (Optional) Failed password-login attempt proof (with sensitive details redacted)
-
-### Reflection (2–3 lines)
-- What was done?  
-- Why disable root/password logins?  
-- Benefit regarding attack surface reduction?
+**Reflection (2–3 lines):**  
+- What did Compose run/manage?  
+- Why inspect logs and stats?  
+- Benefit for monitoring and troubleshooting?
 
 ---
 
-## 9) Configure Firewall (UFW)
-Install and configure:
+## (Optional) Health Check & Nginx Index Test
+If you want to confirm the Nginx root is served correctly:
 ```bash
-sudo apt-get install ufw
-
-sudo ufw default allow outgoing
-sudo ufw default deny incoming
-
-sudo ufw allow ssh
-sudo ufw allow 8000
-
-sudo ufw enable
-sudo ufw status verbose
+# On the host, fetch HTML and view the first line
+curl -s http://localhost | head -n 3
 ```
 
-### Screenshot to Capture
-- `sudo ufw status verbose` **showing**:
-  - Default incoming: **deny**
-  - Default outgoing: **allow**
-  - Open ports for **OpenSSH** and **8000**
+**Screenshot to Capture:**  
+- The output from the `curl` command showing your app’s HTML.
 
-### Reflection (2–3 lines)
-- What was done?  
-- Why apply least-privilege network policy?  
-- Benefit for reducing exposure and complying with best practices?
+**Reflection (2–3 lines):**  
+- What does this confirm?  
+- Why test HTTP responses?  
+- Benefit for end-to-end verification?
 
 ---
 
-## 10) Install & Configure Fail2Ban
-Install:
-```bash
-sudo apt install fail2ban
-```
-
-(Reference files will be in `/etc/fail2ban/`)
-
-Copy base configs and edit:
-```bash
-cd /etc/fail2ban
-sudo cp fail2ban.conf fail2ban.local
-sudo cp jail.conf jail.local
-sudo vi jail.local
-```
-
-Under `[sshd]`, ensure:
-```
-[sshd]
-enabled = true
-port = ssh
-filter = sshd
-logpath = %(sshd_log)s
-maxretry = 3
-bantime = 24h
-findtime = 10m
-ignoreip = 127.0.0.1/8 ::1 <your_ip_address>
-```
-
-Restart & enable:
-```bash
-sudo systemctl restart fail2ban
-sudo systemctl status fail2ban
-sudo systemctl enable --now fail2ban
-```
-
-Check logs / status:
-```bash
-sudo tail -f /var/log/fail2ban.log
-# In another terminal:
-sudo fail2ban-client status sshd
-```
-
-### Screenshot to Capture
-- `sudo systemctl status fail2ban` showing **active (running)**
-- `sudo fail2ban-client status sshd` showing jail status and any banned IPs (if testing)
-
-### Reflection (2–3 lines)
-- What was done?  
-- Why use Fail2Ban?  
-- Benefit in defending brute-force attacks?
-
----
-
-## Final Self‑Check (Optional, Recommended)
-- [ ] Logging in as **root** is blocked.  
-- [ ] **Password** authentication is disabled.  
-- [ ] **UFW** is enabled with only necessary ports open.  
-- [ ] **Fail2Ban** is active and monitoring `sshd`.  
-- [ ] You can log in as **`newadmin`** using **SSH keys**.  
-- [ ] Hostname and `/etc/hosts` mapping are correct.
+## Final Self‑Check
+- [ ] Docker & Compose installed and verified.
+- [ ] Project cloned to Droplet and accessible.
+- [ ] Image builds successfully from `Dockerfile`.
+- [ ] Container responds on the mapped port (80 or 8080).
+- [ ] You can `exec` into the container and see built assets.
+- [ ] Compose file works (`docker compose up -d`), logs and stats checked.
 
 ---
 
 ## Tips for Clean Submissions
-- Blur/redact **private keys**, secrets, and full IPs if required by policy.
-- Keep terminal fonts large enough to read.
-- Create a PDF file and send to "samadhivkcom@gmail.com" or "SLaksahan@innodata.com".
+- Blur/redact secrets, private IPs, or tokens in screenshots.
+- Use readable terminal font sizes and high contrast.
+- If you changed default ports, mention them in your reflection file.
+- Export images to a single PDF or zip with reflections and submit.
 
 **End of Lab.**
